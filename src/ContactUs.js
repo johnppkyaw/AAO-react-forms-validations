@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function ContactUs() {
   const [name, setName] = useState('');
@@ -6,10 +6,32 @@ function ContactUs() {
   const [phone, setPhone] = useState('');
   const [phoneType, setPhoneType] = useState('');
   const [comments, setComments] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    const errors = {};
+    if (name.length <= 0) {
+      errors.name = "Please enter your Name as its value."
+    }
+    if (!email.includes('@')) {
+      errors.email = 'Please provide a valid Email as its value'
+    }
+    setValidationErrors(prev => errors);
+
+  },[name, email])
 
   const onSubmit = e => {
     // Prevent the default form behavior so the page doesn't reload.
     e.preventDefault();
+
+    setHasSubmitted(prev => true);
+
+    if(Object.keys(validationErrors).length > 0) {
+      return alert(`The following errors were found:
+      ${validationErrors.name ? "* " + validationErrors.name : ""}
+      ${validationErrors.email ? "* " + validationErrors.email : ""}`)
+    }
 
     // Create a new object for the contact us information.
     const contactUsInformation = {
@@ -31,6 +53,8 @@ function ContactUs() {
     setPhone('');
     setPhoneType('');
     setComments('');
+    setValidationErrors({});
+    setHasSubmitted(prev => false);
   }
 
   return (
@@ -46,6 +70,9 @@ function ContactUs() {
             value={name}
           />
         </div>
+        <div className='error'>
+  {hasSubmitted && validationErrors.name && `* ${validationErrors.name}`}
+</div>
         <div>
           <label htmlFor='email'>Email:</label>
           <input
@@ -55,6 +82,9 @@ function ContactUs() {
             value={email}
           />
         </div>
+        <div className='error'>
+  {hasSubmitted && validationErrors.email && `* ${validationErrors.email}`}
+</div>
         <div>
           <label htmlFor='phone'>Phone:</label>
           <input
